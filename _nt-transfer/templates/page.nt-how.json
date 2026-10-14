@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "hero": {"type": "nt-page-hero", "settings": {"kicker": "代購服務", "display": "Tackle from Japan", "lead": "先報價、付清後才下單，每一筆費用都列得清清楚楚。"}},
+    "steps": {"type": "nt-steps", "settings": {}},
+    "fees": {"type": "nt-fees", "settings": {}},
+    "cta": {"type": "nt-cta", "settings": {}}
+  },
+  "order": ["hero", "steps", "fees", "cta"]
+}

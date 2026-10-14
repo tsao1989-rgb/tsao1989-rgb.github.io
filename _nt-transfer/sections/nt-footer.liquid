@@ -1,0 +1,43 @@
+{{ 'nt.css' | asset_url | stylesheet_tag }}
+<div class='nt-foot'>
+  <div class='nt-wrap'>
+    <div class='nt-foot__grid'>
+      <div>
+        <div class='nt-foot__brand'>{{ shop.name }}</div>
+        <p>人在日本的釣具代購與日本釣魚地陪。用 LINE 或 Facebook 告訴我你想找的釣具。</p>
+      </div>
+      <div>
+        <h3>Service</h3>
+        <ul>
+          <li><a href='/pages/how-it-works'>代購流程與費用</a></li>
+          <li><a href='/pages/fishing-guide'>日本釣魚地陪</a></li>
+          <li><a href='/pages/faq'>常見問題</a></li>
+          <li><a href='/pages/about-natsumeya'>關於我們</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li><a href='https://line.me/R/ti/p/@YOUR_LINE_ID' target='_blank' rel='noopener'>LINE</a></li>
+          <li><a href='https://m.me/YOUR_FACEBOOK_PAGE' target='_blank' rel='noopener'>Facebook</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='nt-foot__legal'>
+      <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
+      <ul>
+        {%- if shop.refund_policy %}<li><a href='{{ shop.refund_policy.url }}'>退款政策</a></li>{% endif -%}
+        {%- if shop.shipping_policy %}<li><a href='{{ shop.shipping_policy.url }}'>運送政策</a></li>{% endif -%}
+        {%- if shop.privacy_policy %}<li><a href='{{ shop.privacy_policy.url }}'>隱私權政策</a></li>{% endif -%}
+        {%- if shop.terms_of_service %}<li><a href='{{ shop.terms_of_service.url }}'>服務條款</a></li>{% endif -%}
+      </ul>
+    </div>
+  </div>
+</div>
+<div class='nt-sticky' role='region' aria-label='快速聯絡'>
+  {% render 'nt-contact', compact: true %}
+</div>
+
+{% schema %}
+{"name": "NT 頁尾", "settings": []}
+{% endschema %}

@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "about": {"type": "nt-about", "settings": {}},
+    "cta": {"type": "nt-cta", "settings": {}}
+  },
+  "order": ["about", "cta"]
+}

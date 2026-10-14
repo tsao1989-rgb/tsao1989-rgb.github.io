@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "guide": {"type": "nt-guide", "settings": {}},
+    "cta": {"type": "nt-cta", "settings": {"heading": "想來日本釣魚？先傳訊息聊聊。", "lead": "告訴我日期、人數和想釣的魚種，我幫你規劃行程並報價。"}}
+  },
+  "order": ["guide", "cta"]
+}

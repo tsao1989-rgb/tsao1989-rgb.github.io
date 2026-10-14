@@ -1,0 +1,34 @@
+{{ 'nt.css' | asset_url | stylesheet_tag }}
+<section class='nt nt-sec' aria-labelledby='nt-steps-h-{{ section.id }}'>
+  <div class='nt-wrap'>
+    <span class='nt-kicker'>代購流程</span>
+    <p class='nt-disp nt-disp--md' aria-hidden='true'><span>How it</span><span><em>works</em></span></p>
+    <h2 class='nt-h2' id='nt-steps-h-{{ section.id }}'>三個步驟，日本釣具寄到你家。</h2>
+    <p class='nt-lead'>不用註冊、不用先付錢。看到報價、確認沒問題，再付款。</p>
+    <ol class='nt-steps3'>
+      <li class='nt-step3'>
+        {% render 'nt-patch', kind: 'chat', uid: 's1', text: 'STEP 01 ★ LINE ★ FACEBOOK ★ STEP 01 ★ ', label: '第一步：傳訊息', rot: -6, size: 120 %}
+        <span class='nt-step3__no'>STEP 01</span>
+        <h3>傳訊息告訴我要找什麼</h3>
+        <p>用 LINE 或 Facebook 傳型號、照片或商品網址，再告訴我數量和預算。</p>
+      </li>
+      <li class='nt-step3'>
+        {% render 'nt-patch', kind: 'quote', uid: 's2', text: 'STEP 02 ★ QUOTE ★ PAY ★ STEP 02 ★ ', label: '第二步：報價與付款', rot: 5, size: 120 %}
+        <span class='nt-step3__no'>STEP 02</span>
+        <h3>收到報價，付清全款</h3>
+        <p>報價逐項列出商品價格、代購服務費、EMS 運費。確認後我傳結帳連結，以日幣線上付款。</p>
+      </li>
+      <li class='nt-step3'>
+        {% render 'nt-patch', kind: 'box', uid: 's3', text: 'STEP 03 ★ EMS ★ TO TAIWAN ★ STEP 03 ★ ', label: '第三步：EMS 寄出', rot: -3, size: 120 %}
+        <span class='nt-step3__no'>STEP 03</span>
+        <h3>日本採購，EMS 寄出</h3>
+        <p>確認入帳後才向日本店家下單，寄出時提供 EMS 追蹤號碼，隨時查得到包裹位置。</p>
+      </li>
+    </ol>
+    <div class='nt-note'><strong>費用怎麼算？</strong><span>商品價格＋代購服務費＋EMS 運費，關稅由收件人支付。</span><a href='/pages/how-it-works'>看費用與運費表 →</a></div>
+  </div>
+</section>
+
+{% schema %}
+{"name": "NT 代購流程", "settings": [], "presets": [{"name": "NT 代購流程"}]}
+{% endschema %}

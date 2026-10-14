@@ -1,0 +1,8 @@
+{
+  "sections": {
+    "hero": {"type": "nt-page-hero", "settings": {"kicker": "常見問題", "display": "FAQ", "lead": "找不到答案？直接用 LINE 或 Facebook 問我。"}},
+    "faq": {"type": "nt-faq", "settings": {"full": true}},
+    "cta": {"type": "nt-cta", "settings": {}}
+  },
+  "order": ["hero", "faq", "cta"]
+}

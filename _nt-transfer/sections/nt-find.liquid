@@ -1,0 +1,20 @@
+{{ 'nt.css' | asset_url | stylesheet_tag }}
+<section class='nt nt--ink nt-sec' aria-labelledby='nt-find-h'>
+  <div class='nt-wrap'>
+    <span class='nt-kicker'>可以幫你找</span>
+    <p class='nt-disp nt-disp--md' aria-hidden='true'><span>Anything</span><span><em>from Japan</em></span></p>
+    <h2 class='nt-h2' id='nt-find-h'>只要是日本的釣具，都可以問。</h2>
+    <p class='nt-lead'>店裡沒有上架商品，因為每一件都是依照你的需求現找。</p>
+    <ul class='nt-find2'>
+      <li><span class='nt-find2__en' aria-hidden='true'>Reels</span><span class='nt-find2__zh'>捲線器<span>日規型號、日本限定色、台灣還沒上市的新款。</span></span></li>
+      <li><span class='nt-find2__en' aria-hidden='true'>Lures</span><span class='nt-find2__zh'>路亞・假餌<span>小量生產、店家限定色、日本釣具店才拿得到的款式。</span></span></li>
+      <li><span class='nt-find2__en' aria-hidden='true'>Rods</span><span class='nt-find2__zh'>釣竿<span>EMS 有長度限制，詢價時會先確認能否寄送與運費。</span></span></li>
+      <li><span class='nt-find2__en' aria-hidden='true'>Tackle</span><span class='nt-find2__zh'>線材・配件<span>釣線、鉤、工具，可以和其他商品一起寄、省運費。</span></span></li>
+      <li><span class='nt-find2__en' aria-hidden='true'>Limited</span><span class='nt-find2__zh'>限定・絕版<span>聯名款、紀念款、已停產的型號，盡力幫你找。</span></span></li>
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{"name": "NT 代購品類", "settings": [], "presets": [{"name": "NT 代購品類"}]}
+{% endschema %}

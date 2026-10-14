@@ -1,0 +1,32 @@
+{{ 'nt.css' | asset_url | stylesheet_tag }}
+<section class='nt nt-sec' aria-labelledby='nt-faq-h-{{ section.id }}'>
+  <div class='nt-wrap nt-faq-grid'>
+    <div>
+      <span class='nt-kicker'>常見問題</span>
+      <p class='nt-disp nt-disp--md' aria-hidden='true'><span>Good to</span><span><em>know</em></span></p>
+      <h2 class='nt-h2' id='nt-faq-h-{{ section.id }}'>付款、運費、關稅，先說清楚。</h2>
+      {%- unless section.settings.full -%}
+        <div class='nt-btns' style='margin-top:32px'><a class='nt-btn nt-btn--ghost' href='/pages/faq'>看全部問題</a></div>
+      {%- endunless -%}
+    </div>
+    <div class='nt-faq'>
+      <details><summary>要怎麼開始詢價？</summary><div class='nt-faq__a'><p>用 LINE 或 Facebook 傳商品型號、照片或網址給我，並告訴我數量和預算。資訊越完整，越快找到。</p></div></details>
+      <details><summary>費用怎麼計算？</summary><div class='nt-faq__a'><p>總金額＝商品價格（日本當地售價）＋代購服務費＋EMS 運費。報價時會逐項列出，你確認後才需要付款。</p></div></details>
+      <details><summary>用什麼方式付款？</summary><div class='nt-faq__a'><p>確認報價後，我會傳送專屬的安全結帳連結，以日幣計價，可線上刷卡付款。</p><p>台灣發卡銀行會自動換算成新台幣，並可能依各銀行規定另收海外交易手續費。</p></div></details>
+      <details><summary>需要付關稅嗎？</summary><div class='nt-faq__a'><p>依台灣海關規定，包裹超過免稅額時需繳進口關稅及營業稅，由收件人在收件時支付。實際規定以財政部關務署公告為準，詳細說明請見<a href='/pages/how-it-works'>代購流程與費用</a>。</p></div></details>
+      <details><summary>多久可以收到？</summary><div class='nt-faq__a'><p>找貨時間依商品而定，報價時會一併告知。確認入帳後下單採購，寄出後提供 EMS 追蹤號碼，可隨時查詢配送進度。</p></div></details>
+      {%- if section.settings.full -%}
+      <details><summary>什麼時候會向店家下單？</summary><div class='nt-faq__a'><p>確認全額入帳後，才會向日本店家下單採購。</p></div></details>
+      <details><summary>找不到想要的商品怎麼辦？</summary><div class='nt-faq__a'><p>限定款、絕版品不一定找得到。找不到的話會直接告訴你，在報價並付款之前都不需要支付任何費用。</p></div></details>
+      <details><summary>付款後可以取消或退貨嗎？</summary><div class='nt-faq__a'><p>代購商品向日本店家下單後，恕無法取消或退換。如收到的商品有瑕疵或與訂單不符，請於收件後 7 天內聯絡我們處理。</p></div></details>
+      <details><summary>釣竿可以寄嗎？</summary><div class='nt-faq__a'><p>EMS 有包裹長度限制，一本竿或較長的釣竿可能無法寄送。詢價時會先確認可否寄送以及運費。</p></div></details>
+      <details><summary>可以一次找好幾樣嗎？</summary><div class='nt-faq__a'><p>可以，多件商品可以合併成一個包裹寄出，運費依總重量計算。</p></div></details>
+      <details><summary>日本釣魚地陪怎麼預約？</summary><div class='nt-faq__a'><p>用 LINE 或 Facebook 告訴我預計日期、人數和想釣的魚種，我會依內容安排並報價。詳情請見<a href='/pages/fishing-guide'>日本釣魚地陪</a>。</p></div></details>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{"name": "NT 常見問題", "settings": [{"type": "checkbox", "id": "full", "label": "顯示全部問題", "default": false}], "presets": [{"name": "NT 常見問題"}]}
+{% endschema %}
