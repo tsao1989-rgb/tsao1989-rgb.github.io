@@ -71,7 +71,7 @@ if [[ $UPDATE -eq 0 ]] && ! grep -q '^YT_KEY="..*"' "$CONF/main.env"; then
   echo "  YouTube Studio →「ライブ配信を開始」→「ストリーム」→「ストリームキー」をコピーして貼り付け"
   echo "  （今は飛ばす場合はそのままEnter。あとで sudo quake-live setkey で設定できます）"
   KEY=""
-  if [[ -r /dev/tty ]]; then read -r -p "  ストリームキー: " KEY </dev/tty || true; fi
+  { read -r -p "  ストリームキー: " KEY </dev/tty; } 2>/dev/null || true
   if [[ -n "$KEY" ]]; then sed -i "s|^YT_KEY=.*|YT_KEY=\"${KEY}\"|" "$CONF/main.env"; fi
 fi
 
