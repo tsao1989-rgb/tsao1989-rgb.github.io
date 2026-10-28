@@ -1,0 +1,18 @@
+[Unit]
+Description=Quake Live - YouTube stream (%i)
+After=network-online.target quake-web.service
+Wants=network-online.target
+Requires=quake-web.service
+StartLimitIntervalSec=0
+
+[Service]
+User=quake
+ExecStart=/opt/quake-live/bin/stream.sh /etc/quake-live/%i.env
+Restart=always
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=15
+Nice=-5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# 地震ライブ配信の操作コマンド
+# 例: quake-live status / quake-live setkey / quake-live restart / quake-live logs
+set -euo pipefail
+NAME="${QL_INSTANCE:-main}"
+ENV="/etc/quake-live/${NAME}.env"
+UNIT="quake-stream@${NAME}"
+
+need_root() { [[ $EUID -eq 0 ]] || { echo "sudo を付けて実行してください: sudo quake-live $*"; exit 1; }; }
+set_var() { # set_var KEY VALUE
+  local k="$1" v="$2"
+  if grep -q "^${k}=" "$ENV"; then sed -i "s|^${k}=.*|${k}=\"${v//|/\\|}\"|" "$ENV"; else echo "${k}=\"${v}\"" >>"$ENV"; fi
+}
+
+case "${1:-help}" in
+  setkey)
+    need_root "$@"
+    read -r -p "YouTubeのストリームキーを貼り付けてEnter: " KEY </dev/tty
+    [[ -n "$KEY" ]] || { echo "キーが空です"; exit 1; }
+    set_var YT_KEY "$KEY"; echo "保存しました。配信を再起動します。"; systemctl restart "$UNIT" ;;
+  lang)
+    need_root "$@"
+    [[ "${2:-}" =~ ^(ja|en|zh)$ ]] || { echo "使い方: sudo quake-live lang ja|en|zh"; exit 1; }
+    set_var PAGE_LANG "$2"; systemctl restart "$UNIT"; echo "言語を $2 にしました。" ;;
+  name)
+    need_root "$@"
+    [[ -n "${2:-}" ]] || { echo '使い方: sudo quake-live name "チャンネル名"'; exit 1; }
+    set_var CHANNEL_NAME "$2"; systemctl restart "$UNIT"; echo "画面のタイトルを「$2」にしました。" ;;
+  quality)
+    need_root "$@"
+    case "${2:-}" in
+      1080) set_var RESOLUTION 1920x1080; set_var VIDEO_BITRATE 4500k ;;
+      720)  set_var RESOLUTION 1280x720;  set_var VIDEO_BITRATE 2500k ;;
+      *) echo "使い方: sudo quake-live quality 1080|720"; exit 1 ;;
+    esac
+    systemctl restart "$UNIT"; echo "画質を ${2}p にしました。" ;;
+  start|stop|restart)
+    need_root "$@"; systemctl "$1" "$UNIT" quake-web; echo "$1 しました。" ;;
+  status)
+    if systemctl is-active --quiet "$UNIT"; then echo "● 配信中（${UNIT}）"; else echo "○ 停止中（${UNIT}）"; fi
+    systemctl is-active --quiet quake-web && echo "● 画面サーバー稼働中" || echo "○ 画面サーバー停止中"
+    grep -E '^(PAGE_LANG|RESOLUTION|CHANNEL_NAME)=' "$ENV" 2>/dev/null || true
+    grep -q '^YT_KEY="..*"' "$ENV" 2>/dev/null && echo "ストリームキー: 設定済み" || echo "ストリームキー: 未設定（sudo quake-live setkey）"
+    echo "CPU負荷: $(cut -d' ' -f1-3 /proc/loadavg)（コア数 $(nproc)）" ;;
+  logs)
+    journalctl -u "$UNIT" -n "${2:-50}" --no-pager ;;
+  snapshot)
+    # 今の配信画面をPNGに保存（確認用）
+    OUT="${2:-/tmp/quake-snapshot.png}"
+    DISP=$(grep -E '^DISPLAY_NUM=' "$ENV" | cut -d= -f2 | tr -d '"'); DISP="${DISP:-99}"
+    ffmpeg -hide_banner -loglevel error -y -f x11grab -i ":${DISP}" -frames:v 1 "$OUT" && echo "保存しました: $OUT" ;;
+  update)
+    need_root "$@"
+    curl -fsSL "${QL_REPO_RAW:-https://raw.githubusercontent.com/tsao1989-rgb/tsao1989-rgb.github.io/quake-live}/install.sh" | bash -s -- --update ;;
+  *)
+    cat <<'EOF'
+地震ライブ配信の操作コマンド
+  quake-live status            配信の状態を表示
+  sudo quake-live setkey       YouTubeのストリームキーを設定
+  sudo quake-live restart      配信を再起動（start / stop も可）
+  sudo quake-live lang ja|en|zh   画面の言語を切り替え
+  sudo quake-live name "名前"   画面左上のタイトルを変更
+  sudo quake-live quality 1080|720  画質を変更（CPUが足りないときは720）
+  quake-live logs              直近のログを表示
+  sudo quake-live snapshot     今の配信画面を画像で保存
+  sudo quake-live update       最新版に更新
+EOF
+    ;;
+esac
