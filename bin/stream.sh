@@ -63,6 +63,8 @@ fi
 # 3) ダッシュボードを全画面で開く
 QS="obs&lang=${PAGE_LANG}"
 [[ -n "$CHANNEL_NAME" ]] && QS="${QS}&name=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$CHANNEL_NAME")"
+[[ "${SHOW_WAVES:-1}" == "0" ]] && QS="${QS}&waves=0"
+[[ "${EEW_FORECAST:-1}" == "0" ]] && QS="${QS}&eewfc=0"
 QS="${QS}${PAGE_QUERY_EXTRA:-}"   # テスト専用（例: &demo）。本番では使わない
 URL="http://127.0.0.1:${WEB_PORT}/index.html?${QS}"
 case "$PAGE_LANG" in en) UI_LANG=en-US ;; zh) UI_LANG=zh-TW ;; *) UI_LANG=ja ;; esac

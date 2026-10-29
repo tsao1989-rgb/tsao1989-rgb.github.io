@@ -23,10 +23,17 @@ curl -fsSL https://raw.githubusercontent.com/tsao1989-rgb/tsao1989-rgb.github.io
 | ログを見る | `quake-live logs` |
 | 最新版に更新 | `sudo quake-live update` |
 
+## 緊急地震速報とP波・S波
+
+- 緊急地震速報は P2P地震情報（警報）と Wolfx API（予報・警報）の両方から受信し、同じ地震は1つにまとめて表示します。
+- P波・S波の円は、気象庁の震源・発生時刻と走時表 JMA2001 から計算した推定です。走時表はインストール時に気象庁のサイトから取得します（取得できない場合は近似計算）。
+- 円を消す: 設定ファイルで `SHOW_WAVES="0"`。予報を出さず警報だけにする: `EEW_FORECAST="0"`。
+
 ## 構成
 
 - `web/index.html` 配信画面（1920×1080）。URL の末尾で `?obs&lang=ja` などを指定
 - `bin/stream.sh` 仮想画面＋Chrome＋ffmpeg で YouTube に送信
+- `bin/make-tt.py` 気象庁の走時表を画面用の tt.json に変換
 - `systemd/` 自動起動・自動再起動の設定
 - `config/example.env` 設定の見本（実際の設定は `/etc/quake-live/main.env`）
 

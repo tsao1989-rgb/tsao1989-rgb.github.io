@@ -66,6 +66,7 @@ body.obs { padding: 0; gap: 0; }
 #status[data-s="recent"] { color: #ffe1a6; border-color: #b77a10; background: #2a1c03; }
 #status[data-s="strong"] { color: #fff; border-color: #ff9900; background: #6b3300; }
 #status[data-s="eew"] { color: #fff; border-color: #fff; background: var(--alert); animation: blink 1s infinite; }
+#status[data-s="eewf"] { color: #1d1300; border-color: #ffd36b; background: #ffb020; }
 #status[data-s="tsu"] { color: #fff; border-color: #ff8bf5; background: #5e0b67; }
 #status[data-s="retry"] { color: #ffd88a; border-color: #6a4f14; background: #261c06; }
 #status .sc { width: 52px; height: 38px; font-size: 26px; }
@@ -165,19 +166,35 @@ aside h2 span { font-weight: 400; font-size: 18px; }
 /* ===== 緊急地震速報 ===== */
 #eew { position: absolute; left: 16px; top: 100px; width: 1240px; z-index: 5; background: var(--alert); color: #fff; border-radius: 6px 6px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
 #eew .head { display: flex; justify-content: space-between; align-items: center; padding: 12px 22px; background: #c4001b; border-radius: 6px 6px 0 0; }
-#eew .head strong { font-size: 44px; letter-spacing: .06em; animation: blink 1s infinite; }
+#eew .head strong { font-size: 44px; letter-spacing: .04em; animation: blink 1s infinite; white-space: nowrap; }
 #eew .head span { font-size: 22px; }
 #eew .body { display: grid; grid-template-columns: 1fr auto; gap: 18px; padding: 14px 22px 16px; align-items: center; }
 #eew .msg { font-size: 30px; font-weight: 700; line-height: 1.35; }
 #eew .areas { font-size: 22px; margin-top: 6px; }
 #eew .pred { display: grid; justify-items: center; gap: 4px; font-size: 18px; }
 #eew .pred .sc { width: 120px; height: 92px; font-size: 62px; border: 3px solid #fff; }
+#eew.fc { background: #ffb020; color: #1d1300; }
+#eew.fc .head { background: #e09600; }
+#eew.fc .head strong { animation: none; }
+#eew.fc .pred .sc { border-color: #1d1300; }
+#eew .meta { display: flex; gap: 18px; align-items: baseline; font-size: 22px; white-space: nowrap; }
+#eew .head { gap: 24px; }
+#eew .meta b { font-family: var(--font-num); font-size: 26px; }
 #eew.cancel { background: #3a4458; }
 #eew.cancel .head { background: #2a3244; }
 #eew.cancel .head strong { animation: none; }
 
 #tsuBar { position: absolute; left: 16px; bottom: 84px; width: 1240px; z-index: 4; padding: 14px 22px; border-radius: 6px; font-size: 26px; font-weight: 700; color: #fff; background: #5e0b67; border: 2px solid #ff8bf5; box-sizing: border-box; }
 #tsuBar.watch { background: #5e4f00; border-color: var(--s45); }
+
+/* P波・S波 */
+#map .wave-p { fill: none; stroke: #4fd2ff; stroke-width: 3; vector-effect: non-scaling-stroke; }
+#map .wave-s { fill: rgba(255,43,58,.16); stroke: #ff3b4a; stroke-width: 4; vector-effect: non-scaling-stroke; }
+.wave-legend { left: 18px; bottom: 16px; display: flex; gap: 22px; align-items: center; padding: 8px 16px; font-size: 18px; white-space: nowrap; }
+.wave-legend i { display: inline-block; width: 26px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 8px; }
+.wave-legend .p i { border-color: #4fd2ff; } .wave-legend .s i { border-color: #ff3b4a; }
+.wave-legend small { color: var(--dim); font-size: 15px; }
+.wave-legend b { font-family: var(--font-num); }
 
 /* ===== プレビュー操作（配信モードでは非表示） ===== */
 #demoPanel { flex: 0 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
@@ -206,6 +223,7 @@ aside h2 span { font-weight: 400; font-size: 18px; }
         <div class="overlay legend" id="legend"></div>
         <div class="overlay source" id="source" data-c="retry"><div class="row"><i></i><span id="connText"></span></div><div id="srcText"></div></div>
         <div class="badge-demo" id="demoBadge" hidden></div>
+        <div class="overlay wave-legend" id="waveLegend" hidden><span class="p"><i></i><span id="wlP"></span></span><span class="s"><i></i><span id="wlS"></span></span><small id="wlNote"></small></div>
       </section>
       <aside>
         <section class="latest" id="latestBox">
@@ -235,7 +253,7 @@ aside h2 span { font-weight: 400; font-size: 18px; }
     <footer class="ticker" id="ticker"><div class="tk-label" id="tkLabel"></div><div class="tk-track"><div id="tkText"></div></div></footer>
 
     <div id="eew" hidden>
-      <div class="head"><strong id="eewTitle"></strong><span id="eewMeta"></span></div>
+      <div class="head"><strong id="eewTitle"></strong><span class="meta"><span id="eewMeta"></span><span id="eewElapsed"></span></span></div>
       <div class="body">
         <div><div class="msg" id="eewMsg"></div><div class="areas" id="eewAreas"></div></div>
         <div class="pred"><span id="eewPredLbl"></span><div class="sc sc-0" id="eewScale">-</div></div>
@@ -248,7 +266,8 @@ aside h2 span { font-weight: 400; font-size: 18px; }
 <div id="demoPanel" hidden aria-label="preview controls">
   <p>プレビュー操作</p>
   <button id="btnQuake" type="button">地震情報を再生</button>
-  <button id="btnEEW" type="button" class="red">緊急地震速報テスト</button>
+  <button id="btnEEW" type="button" class="red">緊急地震速報（警報）テスト</button>
+  <button id="btnEEWfc" type="button">緊急地震速報（予報）テスト</button>
   <button id="btnTsu" type="button">津波注意報テスト</button>
   <button id="btnQuiet" type="button">平常時の表示</button>
   <button id="btnClear" type="button">リセット</button>
@@ -268,9 +287,12 @@ aside h2 span { font-weight: 400; font-size: 18px; }
 // URLで変更可能: ?obs  ?lang=ja|en|zh  ?name=チャンネル名  ?mute  ?demo
 const CONFIG = {
   wsUrl: 'wss://api.p2pquake.net/v2/ws',
+  eewWsUrl: 'wss://ws-api.wolfx.jp/jma_eew',   // 緊急地震速報（予報・警報）
+  travelTimeUrl: 'tt.json',                    // 気象庁 JMA2001 走時表（配信サーバーで用意）
   restUrl: 'https://api.p2pquake.net/v2/history?codes=551&codes=552&limit=100',
   pollMs: 60000,
-  eewHoldMs: 180000,     // 緊急地震速報の表示時間
+  eewHoldMs: 180000,     // 緊急地震速報（警報）の表示時間
+  eewFcHoldMs: 90000,    // 緊急地震速報（予報）の表示時間
   activeMs: 60 * 60e3,   // 地震発生後、この時間は震度分布を表示（その後は平常モード）
   flashMs: 45000,        // 新着バナーの表示時間
   sound: true
@@ -280,6 +302,10 @@ const OBS = params.has('obs');
 const FORCE_DEMO = params.has('demo');
 if (OBS) document.body.classList.add('obs');
 if (params.has('mute')) CONFIG.sound = false;
+// ?waves=0 でP波・S波の円を消す / ?eewfc=0 で予報を表示しない / ?eewsrc=p2p でWolfxを使わない
+const SHOW_WAVES = params.get('waves') !== '0';
+const SHOW_FC = params.get('eewfc') !== '0';
+const USE_WOLFX = params.get('eewsrc') !== 'p2p';
 let LANG = ['ja', 'en', 'zh'].includes(params.get('lang')) ? params.get('lang') : 'ja';
 
 // ===================== 多言語 =====================
@@ -312,13 +338,14 @@ const T = {
     durShort: (d, h, m) => d ? `${d}日` : h ? `${h}時間` : `${m}分`,
     stQuiet: '現在、新しい地震情報はありません', stRecent: (x, sc) => `${x}前に地震　最大震度`, stEEW: '緊急地震速報 発表中　強い揺れに警戒', stTsu: g => `${g} 発表中　海岸から離れてください`, stRetry: 'データ再接続中',
     conn: { live: 'リアルタイム受信中', retry: '再接続中…', demo: 'デモ表示（ライブデータ未接続）' }, lastRx: '最終受信',
-    source: '情報：気象庁（P2P地震情報 経由）', notice: 'お知らせ', tsuLabel: '津波情報', demo: 'デモデータ表示中', legend: '震度',
+    source: '情報：気象庁（P2P地震情報・Wolfx 経由）', notice: 'お知らせ', tsuLabel: '津波情報', demo: 'デモデータ表示中', legend: '震度',
     issue: { ScalePrompt: '震度速報', Destination: '震源に関する情報', ScaleAndDestination: '震源・震度に関する情報', DetailScale: '各地の震度に関する情報', Foreign: '遠地地震に関する情報', Other: '地震情報' },
     tsu: { None: 'この地震による津波の心配はありません', NonEffective: '若干の海面変動の可能性がありますが、被害の心配はありません', Checking: '津波の有無を調査中です', Unknown: '津波の有無は調査中または不明です', Watch: '津波注意報を発表中', Warning: '津波警報等を発表中' },
     tsuGrade: { MajorWarning: '大津波警報', Warning: '津波警報', Watch: '津波注意報', Unknown: '津波予報' },
     tsuTicker: p => `【津波】${p}　海岸や川の河口付近から離れてください。`, tsuMore: '　ほか',
-    eewTitle: '緊急地震速報（警報）', eewCancel: '緊急地震速報 取り消し', eewCancelMsg: '先ほどの緊急地震速報は取り消されました。',
-    eewMsg: n => `${n}で地震　強い揺れに警戒してください`, eewAreas: '対象地域：', eewPred: '予想最大震度', serial: n => `第${n}報`,
+    eewTitle: '緊急地震速報（警報）', eewFcTitle: '緊急地震速報（予報）', eewCancel: '緊急地震速報 取り消し', eewCancelMsg: '先ほどの緊急地震速報は取り消されました。',
+    eewMsg: n => `${n}で地震　強い揺れに警戒してください`, eewFcMsg: n => `${n}で地震　揺れに注意してください`, final: '最終報', elapsed: s => `発生から <b>${s}</b>秒`,
+    waveP: 'P波（初期微動）', waveS: 'S波（主要動）', waveNote: '気象庁の震源・発生時刻から計算した推定', stEEWfc: '緊急地震速報（予報）発表中', depthKm: d => `深さ${d}km`, eewAreas: '対象地域：', eewPred: '予想最大震度', serial: n => `第${n}報`,
     flashTag: '地震情報', flash: (epi, sc) => `${epi}で 最大震度`,
     latest: (t, epi, sc, mag, tsu) => `【最新】${t}ごろ ${epi ? epi + 'で' : ''}最大震度${sc}の地震がありました。${mag ? '地震の規模はM' + mag + '。' : ''}${tsu}。`,
     notices: ['強い揺れを感じたら、まず身の安全を確保してください。', '本配信は気象庁の発表情報を P2P地震情報 API 経由で自動表示しています。正確な情報は気象庁・自治体の発表をご確認ください。', '海岸付近で強い揺れや長くゆっくりした揺れを感じたら、すぐに高台へ避難してください。', '家具の固定、非常用持ち出し袋、家族との連絡方法を今のうちに確認しておきましょう。'],
@@ -335,13 +362,14 @@ const T = {
     durShort: (d, h, m) => d ? `${d}d` : h ? `${h}h` : `${m}m`,
     stQuiet: 'No new earthquake reports', stRecent: x => `Earthquake ${x} ago · Max Shindo`, stEEW: 'EARTHQUAKE EARLY WARNING — Strong shaking expected', stTsu: g => `${g} in effect — Stay away from the coast`, stRetry: 'Reconnecting to data feed',
     conn: { live: 'Live data', retry: 'Reconnecting…', demo: 'Demo (not connected)' }, lastRx: 'Last update',
-    source: 'Source: Japan Meteorological Agency via P2P Quake', notice: 'INFO', tsuLabel: 'TSUNAMI', demo: 'DEMO DATA', legend: 'Shindo',
+    source: 'Source: Japan Meteorological Agency via P2P Quake & Wolfx', notice: 'INFO', tsuLabel: 'TSUNAMI', demo: 'DEMO DATA', legend: 'Shindo',
     issue: { ScalePrompt: 'Seismic Intensity Report', Destination: 'Hypocenter Report', ScaleAndDestination: 'Hypocenter & Intensity Report', DetailScale: 'Detailed Intensity Report', Foreign: 'Distant Earthquake Report', Other: 'Earthquake Report' },
     tsu: { None: 'No tsunami expected from this earthquake', NonEffective: 'Slight sea-level change possible; no damage expected', Checking: 'Tsunami possibility under investigation', Unknown: 'Tsunami information under investigation', Watch: 'Tsunami Advisory in effect', Warning: 'Tsunami Warning in effect' },
     tsuGrade: { MajorWarning: 'Major Tsunami Warning', Warning: 'Tsunami Warning', Watch: 'Tsunami Advisory', Unknown: 'Tsunami Forecast' },
     tsuTicker: p => `[TSUNAMI] ${p} — Move away from coasts and river mouths.`, tsuMore: ' and more',
-    eewTitle: 'Earthquake Early Warning', eewCancel: 'Early Warning Cancelled', eewCancelMsg: 'The previous Earthquake Early Warning has been cancelled.',
-    eewMsg: n => `Earthquake: ${n} — Strong shaking expected`, eewAreas: 'Areas: ', eewPred: 'Max expected', serial: n => `Report #${n}`,
+    eewTitle: 'Earthquake Early Warning', eewFcTitle: 'Early Warning (Forecast)', eewCancel: 'Early Warning Cancelled', eewCancelMsg: 'The previous Earthquake Early Warning has been cancelled.',
+    eewMsg: n => `Earthquake: ${n} — Strong shaking expected`, eewFcMsg: n => `Earthquake: ${n} — Shaking possible`, final: 'Final', elapsed: s => `<b>${s}</b>s since origin`,
+    waveP: 'P-wave', waveS: 'S-wave (main shaking)', waveNote: 'Estimated from JMA hypocenter and origin time', stEEWfc: 'Early Warning (Forecast) issued', depthKm: d => `Depth ${d} km`, eewAreas: 'Areas: ', eewPred: 'Max expected', serial: n => `Report #${n}`,
     flashTag: 'EARTHQUAKE', flash: epi => `${epi} · Max Shindo`,
     latest: (t, epi, sc, mag, tsu) => `[Latest] ${t} JST — Max Shindo ${sc} earthquake${epi ? ' in ' + epi : ''}.${mag ? ' Magnitude ' + mag + '.' : ''} ${tsu}.`,
     notices: ['If you feel strong shaking, protect yourself first: drop, cover and hold on.', 'Data from the Japan Meteorological Agency via the P2P Quake API. Always check official JMA and local government announcements.', 'Near the coast, if you feel strong or long, slow shaking, evacuate to higher ground immediately.'],
@@ -358,13 +386,14 @@ const T = {
     durShort: (d, h, m) => d ? `${d}天` : h ? `${h}小時` : `${m}分鐘`,
     stQuiet: '目前沒有新的地震資訊', stRecent: x => `${x}前發生地震　最大震度`, stEEW: '緊急地震速報 發布中　請警戒強烈搖晃', stTsu: g => `${g} 發布中　請遠離海岸`, stRetry: '資料重新連線中',
     conn: { live: '即時接收中', retry: '重新連線中…', demo: '展示模式（未連線）' }, lastRx: '最後接收',
-    source: '資料來源：日本氣象廳（經由 P2P地震情報）', notice: '公告', tsuLabel: '海嘯資訊', demo: '展示資料', legend: '震度',
+    source: '資料來源：日本氣象廳（經由 P2P地震情報・Wolfx）', notice: '公告', tsuLabel: '海嘯資訊', demo: '展示資料', legend: '震度',
     issue: { ScalePrompt: '震度速報', Destination: '震源資訊', ScaleAndDestination: '震源・震度資訊', DetailScale: '各地震度資訊', Foreign: '遠地地震資訊', Other: '地震資訊' },
     tsu: { None: '此地震無引發海嘯之虞', NonEffective: '海面可能有些微變動，但無受災之虞', Checking: '正在調查是否引發海嘯', Unknown: '海嘯資訊調查中', Watch: '海嘯注意報發布中', Warning: '海嘯警報發布中' },
     tsuGrade: { MajorWarning: '大海嘯警報', Warning: '海嘯警報', Watch: '海嘯注意報', Unknown: '海嘯預報' },
     tsuTicker: p => `【海嘯】${p}　請遠離海岸及河口。`, tsuMore: '　等',
-    eewTitle: '緊急地震速報（警報）', eewCancel: '緊急地震速報 已取消', eewCancelMsg: '先前的緊急地震速報已取消。',
-    eewMsg: n => `${n}發生地震　請警戒強烈搖晃`, eewAreas: '對象地區：', eewPred: '預估最大震度', serial: n => `第${n}報`,
+    eewTitle: '緊急地震速報（警報）', eewFcTitle: '緊急地震速報（預報）', eewCancel: '緊急地震速報 已取消', eewCancelMsg: '先前的緊急地震速報已取消。',
+    eewMsg: n => `${n}發生地震　請警戒強烈搖晃`, eewFcMsg: n => `${n}發生地震　請注意搖晃`, final: '最終報', elapsed: s => `發生後 <b>${s}</b>秒`,
+    waveP: 'P波（初期微動）', waveS: 'S波（主要震動）', waveNote: '依氣象廳震源及發生時間推算', stEEWfc: '緊急地震速報（預報）發布中', depthKm: d => `深度${d}km`, eewAreas: '對象地區：', eewPred: '預估最大震度', serial: n => `第${n}報`,
     flashTag: '地震資訊', flash: epi => `${epi}　最大震度`,
     latest: (t, epi, sc, mag, tsu) => `【最新】${t}左右 ${epi ? epi + '發生' : '發生'}最大震度${sc}的地震。${mag ? '規模M' + mag + '。' : ''}${tsu}。`,
     notices: ['感到強烈搖晃時，請先確保自身安全。', '本直播自動顯示日本氣象廳發布之資訊（經由 P2P地震情報 API）。正確資訊請以氣象廳及地方政府公告為準。', '在海岸附近感到強烈或長時間緩慢的搖晃時，請立即前往高處避難。'],
@@ -424,6 +453,9 @@ const root = svg.append('g');
 root.append('path').attr('class', 'grat').attr('d', path(d3.geoGraticule().step([2, 2])()));
 const prefSel = root.append('g').selectAll('path').data(prefs).join('path').attr('class', 'pref').attr('d', path);
 const histLayer = root.append('g');
+const waveLayer = root.append('g');
+const waveS = waveLayer.append('path').attr('class', 'wave-s');
+const waveP = waveLayer.append('path').attr('class', 'wave-p');
 const badgeLayer = root.append('g');
 const epiLayer = root.append('g');
 const prefAnchor = new Map();
@@ -582,7 +614,7 @@ function renderHistory(list) {
 function renderStatus() {
   const st = $('status'), tx = $('statusText');
   let s, html;
-  if (eewActive() && !$('eew').classList.contains('cancel')) { s = 'eew'; html = esc(t().stEEW); }
+  if (eewActive() && !$('eew').classList.contains('cancel')) { if (activeEEW && !activeEEW.warn) { s = 'eewf'; html = esc(t().stEEWfc); } else { s = 'eew'; html = esc(t().stEEW); } }
   else if (tsunami) { s = 'tsu'; html = esc(t().stTsu(t().tsuGrade[tsunami.grade])); }
   else if (!demoMode && connState === 'retry' && (!lastRx || Date.now() - lastRx > 5 * 60e3) && events.size === 0) { s = 'retry'; html = esc(t().stRetry); }
   else if (mode === 'active' && current) {
@@ -664,45 +696,133 @@ function handleTsunami(m, live) {
 }
 
 // ===================== 緊急地震速報 =====================
-let lastEEW = null;
-function handleEEW(m, holdMs = CONFIG.eewHoldMs) {
-  if (m.test) return;
+// 2つの入力（P2P地震情報=警報のみ、Wolfx=予報と警報）を同じ形にそろえて扱う
+const INT_CODE = { '1': 10, '2': 20, '3': 30, '4': 40, '5弱': 45, '5-': 45, '5強': 50, '5+': 50, '6弱': 55, '6-': 55, '6強': 60, '6+': 60, '7': 70 };
+const intCode = v => INT_CODE[String(v == null ? '' : v).trim()] || 0;
+function prefOfArea(name) { const s = prefSplit(name); return s ? s[0] + (s[0] === '北海道' ? '' : s[0] === '東京' ? '都' : (s[0] === '京都' || s[0] === '大阪') ? '府' : '県') : null; }
+function fromP2P(m) {
+  const e = m.earthquake || {}, h = e.hypocenter || {};
+  const areas = (m.areas || []).map(a => ({ pref: a.pref, name: a.name, scale: a.scaleFrom > 0 ? a.scaleFrom : 0 }));
+  return { src: 'p2p', key: (m.issue && m.issue.eventId) || e.originTime, warn: true, cancel: !!m.cancelled, test: !!m.test, final: false,
+    assumption: e.condition === '仮定震源要素', serial: m.issue && m.issue.serial, issued: parseJST(m.issue && m.issue.time) || new Date(),
+    origin: parseJST(e.originTime), hypo: { name: h.name, lat: h.latitude, lon: h.longitude, depth: h.depth, mag: h.magnitude },
+    maxScale: areas.reduce((a, x) => Math.max(a, x.scale), 0), areas };
+}
+function fromWolfx(m) {
+  const areas = (m.WarnArea || []).map(a => ({ pref: prefOfArea(a.Chiiki), name: a.Chiiki, scale: intCode(a.Shindo1) }));
+  return { src: 'wolfx', key: String(m.EventID || m.OriginTime), warn: !!m.isWarn, cancel: !!m.isCancel, test: !!m.isTraining, final: !!m.isFinal,
+    assumption: !!m.isAssumption, serial: m.Serial, issued: parseJST(m.AnnouncedTime) || new Date(),
+    origin: parseJST(m.OriginTime), hypo: { name: m.Hypocenter, lat: +m.Latitude, lon: +m.Longitude, depth: +m.Depth, mag: +(m.Magunitude != null ? m.Magunitude : m.Magnitude) },
+    maxScale: Math.max(intCode(m.MaxIntensity), areas.reduce((a, x) => Math.max(a, x.scale), 0)), areas };
+}
+let activeEEW = null;
+function handleEEW(ev, holdMs) {
+  if (!ev || ev.test) return;
+  if (Date.now() - ev.issued.getTime() > 180e3) return;            // 古い情報（接続直後の再送など）は出さない
+  const same = activeEEW && activeEEW.key === ev.key;
+  if (!ev.warn && !SHOW_FC && !(same && activeEEW.warn)) return;
+  if (same && ev.serial && activeEEW.serial && +ev.serial < +activeEEW.serial) return; // 2つの入力の重複・古い報
   const box = $('eew');
   clearTimeout(eewTimer);
-  if (m.cancelled) {
-    box.classList.add('cancel'); $('eewTitle').textContent = t().eewCancel; $('eewMsg').textContent = t().eewCancelMsg; $('eewAreas').textContent = '';
-    renderStatus(); eewTimer = setTimeout(endEEW, 20000); return;
+  if (ev.cancel) {
+    if (!activeEEW) return;
+    box.classList.remove('fc'); box.classList.add('cancel'); $('eewTitle').textContent = t().eewCancel; $('eewMsg').textContent = t().eewCancelMsg; $('eewAreas').textContent = '';
+    stopWaves(); renderStatus(); eewTimer = setTimeout(endEEW, 20000); return;
   }
-  lastEEW = m;
-  box.classList.remove('cancel'); box.hidden = false;
+  const prev = same ? activeEEW : null;
+  if (prev && prev.warn && !ev.warn) ev.warn = true;               // 一度警報になった地震は警報のまま表示
+  if (prev && !ev.areas.length) ev.areas = prev.areas;
+  activeEEW = ev;
+  box.classList.remove('cancel'); box.classList.toggle('fc', !ev.warn); box.hidden = false;
   paintEEW();
-  const areas = m.areas || [];
-  const eewPrefs = new Set(areas.map(a => normPref(a.pref)));
+  const eewPrefs = new Set(ev.areas.map(a => normPref(a.pref)).filter(Boolean));
   prefSel.style('fill', null).classed('eew', d => eewPrefs.has(normPref(d.properties.nam_ja)));
   badgeLayer.selectAll('*').remove();
-  const epi = drawEpicenter((m.earthquake && m.earthquake.hypocenter) || {}, 'eew');
-  const pts = [...eewPrefs].map(p => prefAnchor.get(p)).filter(Boolean); if (epi) pts.push(epi);
-  zoomTo(pts, 900, 240);
-  $('mapTitle').textContent = t().mapEEW; $('mapSub').textContent = '';
+  const h = ev.hypo, hasH = h && h.name && h.lat > -90 && h.lon > -180;
+  const epi = drawEpicenter(hasH ? { name: h.name, latitude: h.lat, longitude: h.lon } : {}, 'eew');
+  const pts = [...eewPrefs].map(p => prefAnchor.get(p)).filter(Boolean);
+  if (epi) { pts.push(epi); [[2.6, 0], [-2.6, 0], [0, 3.2], [0, -3.2]].forEach(([dy, dx]) => pts.push(proj([h.lon + dx, h.lat + dy]))); }
+  if (!prev || (prev.warn !== ev.warn) || eewPrefs.size !== (prev._prefCount || 0)) zoomTo(pts, 900, 240);
+  ev._prefCount = eewPrefs.size;
   $('mapCap').style.visibility = 'hidden';
   mode = 'eew'; renderStatus();
-  chime('eew');
-  eewTimer = setTimeout(endEEW, holdMs);
+  if (!prev) chime(ev.warn ? 'eew' : 'eewfc');
+  else if (ev.warn && !prev.warn) chime('eew');
+  startWaves();
+  eewTimer = setTimeout(endEEW, holdMs || (ev.warn ? CONFIG.eewHoldMs : CONFIG.eewFcHoldMs));
 }
 function paintEEW() {
-  const m = lastEEW; if (!m) return;
-  const h = (m.earthquake && m.earthquake.hypocenter) || {};
-  const areas = m.areas || [];
-  const maxPred = areas.reduce((a, x) => Math.max(a, x.scaleFrom > 0 ? x.scaleFrom : 0), 0);
-  $('eewTitle').textContent = t().eewTitle;
-  $('eewMeta').textContent = `${m.issue && m.issue.serial ? t().serial(m.issue.serial) + '　' : ''}${m.issue && m.issue.time ? t().issued(fmtHMS(parseJST(m.issue.time))) : ''}`;
-  $('eewMsg').textContent = t().eewMsg(h.name ? place(h.name) : t().epiUnknown);
-  const prefNames = [...new Set(areas.map(a => a.pref))];
+  const ev = activeEEW; if (!ev) return;
+  const h = ev.hypo || {};
+  $('eewTitle').textContent = ev.warn ? t().eewTitle : t().eewFcTitle;
+  const bits = [];
+  if (ev.serial) bits.push(t().serial(ev.serial) + (ev.final ? `（${t().final}）` : ''));
+  if (h.mag > 0) bits.push(`M${(+h.mag).toFixed(1)}`);
+  if (h.depth >= 0 && !ev.assumption) bits.push(t().depthKm(h.depth));
+  $('eewMeta').textContent = bits.join('　');
+  $('eewMsg').textContent = (ev.warn ? t().eewMsg : t().eewFcMsg)(h.name ? place(h.name) : t().epiUnknown);
+  const prefNames = [...new Set(ev.areas.map(a => a.pref).filter(Boolean))];
   $('eewAreas').textContent = prefNames.length ? t().eewAreas + prefNames.map(prefName).join(LANG === 'en' ? ', ' : '　') : '';
   $('eewPredLbl').textContent = t().eewPred;
-  const sc = $('eewScale'); sc.className = 'sc ' + scaleClass(maxPred); sc.innerHTML = scaleHTML(maxPred);
+  const sc = $('eewScale'); sc.className = 'sc ' + scaleClass(ev.maxScale); sc.innerHTML = scaleHTML(ev.maxScale);
+  $('wlP').textContent = t().waveP; $('wlS').textContent = t().waveS; $('wlNote').textContent = t().waveNote;
+  tickEEWElapsed();
 }
-function endEEW() { $('eew').hidden = true; $('eew').classList.remove('cancel'); $('mapCap').style.visibility = ''; lastEEW = null; render(true); }
+function tickEEWElapsed() {
+  const ev = activeEEW;
+  $('eewElapsed').innerHTML = ev && ev.origin && !$('eew').classList.contains('cancel') ? t().elapsed(Math.max(0, Math.floor((Date.now() - ev.origin) / 1000))) : '';
+}
+setInterval(() => { if (eewActive()) tickEEWElapsed(); }, 250);
+function endEEW() { stopWaves(); $('eew').hidden = true; $('eew').classList.remove('cancel', 'fc'); $('mapCap').style.visibility = ''; activeEEW = null; render(true); }
+
+// ===================== P波・S波（走時表から波面の半径を計算） =====================
+// 気象庁の JMA2001 走時表を使う。ない場合（プレビューなど）は近似式で計算する。
+let TT = null;
+fetch(CONFIG.travelTimeUrl, { cache: 'force-cache' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.dist && j.depth && j.p && j.s) TT = j; }).catch(() => {});
+function invRow(times, dist, t) {        // 走時の列から、時刻 t に波が届いている震央距離(km)を求める
+  if (!(t >= times[0])) return NaN;
+  for (let i = 0; i < times.length - 1; i++) {
+    if (t < times[i + 1]) { const f = (t - times[i]) / (times[i + 1] - times[i] || 1); return dist[i] + f * (dist[i + 1] - dist[i]); }
+  }
+  return dist[dist.length - 1];
+}
+function approxRadius(t, depth, v1, v2) { // 近似：100kmまでは地殻の速度、その先は上部マントルの速度
+  const R = t * v1 <= 100 ? t * v1 : 100 + (t - 100 / v1) * v2;
+  return R < depth ? NaN : Math.sqrt(R * R - depth * depth);
+}
+function waveRadius(t, depth, kind) {
+  depth = Math.max(0, Math.min(700, depth || 10));
+  if (!TT) return kind === 'p' ? approxRadius(t, depth, 6.0, 7.8) : approxRadius(t, depth, 3.5, 4.4);
+  const D = TT.depth; let i = 0; while (i < D.length - 2 && D[i + 1] < depth) i++;
+  const tbl = kind === 'p' ? TT.p : TT.s;
+  const r0 = invRow(tbl[i], TT.dist, t), r1 = invRow(tbl[i + 1], TT.dist, t);
+  const f = (depth - D[i]) / (D[i + 1] - D[i] || 1);
+  if (isNaN(r0) && isNaN(r1)) return NaN;
+  if (isNaN(r0)) return f > .5 ? r1 : NaN;
+  if (isNaN(r1)) return r0;
+  return r0 + f * (r1 - r0);
+}
+if (params.has('debug')) window.__quake = { waveRadius, ttLoaded: () => !!TT };
+const circle = d3.geoCircle().precision(3);
+let waveRaf = 0;
+function drawWaves() {
+  waveRaf = 0;
+  const ev = activeEEW;
+  if (!ev || !eewActive() || $('eew').classList.contains('cancel')) { stopWaves(); return; }
+  const h = ev.hypo, t = (Date.now() - ev.origin) / 1000;
+  const rp = waveRadius(t, h.depth, 'p'), rs = waveRadius(t, h.depth, 's');
+  const ring = r => r > 0 ? path(circle.center([h.lon, h.lat]).radius(r / 111.195)()) : null;
+  waveP.attr('d', ring(rp)); waveS.attr('d', ring(rs));
+  if (!(rs > 1500)) waveRaf = requestAnimationFrame(drawWaves); // S波が1500kmを超えたら終了
+}
+function startWaves() {
+  const ev = activeEEW;
+  const ok = SHOW_WAVES && ev && ev.origin && !ev.assumption && ev.hypo && ev.hypo.lat > -90 && ev.hypo.lon > -180;
+  $('waveLegend').hidden = !ok; $('legend').hidden = ok;
+  if (!ok) { waveP.attr('d', null); waveS.attr('d', null); return; }
+  if (!waveRaf) waveRaf = requestAnimationFrame(drawWaves);
+}
+function stopWaves() { if (waveRaf) cancelAnimationFrame(waveRaf); waveRaf = 0; waveP.attr('d', null); waveS.attr('d', null); $('waveLegend').hidden = true; $('legend').hidden = false; }
 
 // ===================== 音 =====================
 let actx = null;
@@ -717,6 +837,7 @@ function tone(f, start, dur, vol = .18, type = 'sine') {
 function chime(kind) {
   if (!CONFIG.sound) return;
   if (kind === 'eew') { for (let r = 0; r < 3; r++) { tone(988, r * .9, .35, .22, 'square'); tone(740, r * .9 + .4, .45, .22, 'square'); } }
+  else if (kind === 'eewfc') { [784, 988, 784].forEach((f, i) => tone(f, i * .3, .25, .16, 'triangle')); }
   else if (kind === 'tsunami') { [523, 659, 523, 659].forEach((f, i) => tone(f, i * .35, .3, .16, 'triangle')); }
   else if (kind === 'strong') { [880, 660, 880, 660].forEach((f, i) => tone(f, i * .25, .22, .18, 'triangle')); }
   else { [659, 880, 1047].forEach((f, i) => tone(f, i * .18, .6, .14)); }
@@ -737,7 +858,7 @@ function ingest(m, live) {
       if (!eewActive()) render(fresh); else { renderLatest(current); renderPoints(current); renderHistory(sortedEvents()); renderTicker(); }
     }
   } else if (m.code === 552) handleTsunami(m, live);
-  else if (m.code === 556 && live) handleEEW(m);
+  else if (m.code === 556 && live) handleEEW(fromP2P(m));
 }
 async function loadHistory() {
   const r = await fetch(CONFIG.restUrl, { cache: 'no-store' });
@@ -762,6 +883,18 @@ function connectWS() {
   ws.onerror = () => { try { ws.close(); } catch (e) {} };
 }
 function scheduleWS() { setTimeout(connectWS, backoff); backoff = Math.min(30000, backoff * 2); }
+// 緊急地震速報（予報・警報）を Wolfx から受信
+let ews = null, eBackoff = 1000, eLast = 0;
+function connectEEW() {
+  if (demoMode || !USE_WOLFX) return;
+  try { ews = new WebSocket(CONFIG.eewWsUrl); } catch (e) { setTimeout(connectEEW, eBackoff); eBackoff = Math.min(30000, eBackoff * 2); return; }
+  ews.onopen = () => { eBackoff = 1000; eLast = Date.now(); };
+  ews.onmessage = ev => { eLast = Date.now(); let m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (m && m.type === 'jma_eew') handleEEW(fromWolfx(m)); };
+  ews.onclose = () => { if (demoMode) return; setTimeout(connectEEW, eBackoff); eBackoff = Math.min(30000, eBackoff * 2); };
+  ews.onerror = () => { try { ews.close(); } catch (e) {} };
+}
+// 3分間なにも届かなければ（ハートビートも含む）つなぎ直す
+setInterval(() => { if (ews && ews.readyState === 1 && Date.now() - eLast > 180e3) { try { ews.close(); } catch (e) {} } }, 30e3);
 // 万一ページが固まった場合に備え、6時間ごとに再読み込み（緊急地震速報の表示中は除く）
 setInterval(() => { if (OBS && !eewActive() && !tsunami) location.reload(); }, 6 * 3600e3);
 
@@ -776,7 +909,7 @@ function applyLang() {
   $('legend').innerHTML = `<span>${esc(t().legend)}</span>` + [10, 20, 30, 40, 45, 50, 55, 60, 70].map(c => `<b class="sc ${scaleClass(c)}">${scaleHTML(c)}</b>`).join('');
   document.querySelectorAll('#demoPanel [data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
   setConn(connState); tickClock();
-  if (eewActive()) { paintEEW(); renderLatest(current); renderPoints(current); renderHistory(sortedEvents()); renderTicker(); renderStatus(); }
+  if (eewActive()) { if (!$('eew').classList.contains('cancel')) paintEEW(); renderLatest(current); renderPoints(current); renderHistory(sortedEvents()); renderTicker(); renderStatus(); }
   else render(false);
   renderTsuBar();
   if (!$('flash').hidden && current) showFlash(current);
@@ -823,10 +956,22 @@ function replayQuake() {
   steps.forEach(s => { s.earthquake = { ...s.earthquake, time: now }; s.issue = { ...s.issue, time: now }; });
   steps.forEach((s, i) => setTimeout(() => ingest(s, true), i * 4000));
 }
+function demoTS(d) { const j = jst(d); return `${j.y}/${pad(j.mo)}/${pad(j.d)} ${pad(j.h)}:${pad(j.mi)}:${pad(j.s)}`; }
 function demoEEW() {
-  const j = jst(new Date()); const TS = `${j.y}/${pad(j.mo)}/${pad(j.d)} ${pad(j.h)}:${pad(j.mi)}:${pad(j.s)}`;
-  handleEEW({ code: 556, test: false, cancelled: false, issue: { time: TS, serial: '1' }, earthquake: { originTime: TS, hypocenter: { name: '千葉県北東部', latitude: 35.7, longitude: 140.7, depth: 50, magnitude: 5.6 } },
-    areas: [{ pref: '千葉県', name: '千葉県北東部', scaleFrom: 45, scaleTo: 50 }, { pref: '茨城県', name: '茨城県南部', scaleFrom: 40, scaleTo: 45 }, { pref: '東京都', name: '東京都２３区', scaleFrom: 40, scaleTo: 40 }, { pref: '埼玉県', name: '埼玉県南部', scaleFrom: 40, scaleTo: 40 }, { pref: '神奈川県', name: '神奈川県東部', scaleFrom: 40, scaleTo: 40 }] }, 15000);
+  // 警報：発生4秒後に第1報、続報で範囲が広がる（Wolfx形式のデータで再現）
+  const origin = new Date(Date.now() - 4000), id = 'demo' + Date.now();
+  const base = { type: 'jma_eew', EventID: id, OriginTime: demoTS(origin), Hypocenter: '千葉県北東部', Latitude: 35.7, Longitude: 140.7, Depth: 50, isTraining: false, isAssumption: false, isCancel: false };
+  const A = (c, s) => ({ Chiiki: c, Shindo1: s, Shindo2: s, Type: '警報' });
+  const steps = [
+    { ...base, Serial: 1, Magunitude: 5.2, MaxIntensity: '5弱', isWarn: true, isFinal: false, WarnArea: [A('千葉県北東部', '5弱'), A('茨城県南部', '4')] },
+    { ...base, Serial: 2, Magunitude: 5.6, MaxIntensity: '5強', isWarn: true, isFinal: false, WarnArea: [A('千葉県北東部', '5強'), A('茨城県南部', '5弱'), A('東京都２３区', '4'), A('埼玉県南部', '4'), A('神奈川県東部', '4')] },
+    { ...base, Serial: 3, Magunitude: 5.6, MaxIntensity: '5強', isWarn: true, isFinal: true, WarnArea: [A('千葉県北東部', '5強'), A('茨城県南部', '5弱'), A('東京都２３区', '4'), A('埼玉県南部', '4'), A('神奈川県東部', '4'), A('栃木県南部', '4')] }
+  ];
+  steps.forEach((m, i) => setTimeout(() => handleEEW({ ...fromWolfx({ ...m, AnnouncedTime: demoTS(new Date()) }) }, 70000), i * 3500));
+}
+function demoEEWfc() {
+  const origin = new Date(Date.now() - 6000);
+  handleEEW(fromWolfx({ type: 'jma_eew', EventID: 'demofc' + Date.now(), Serial: 2, AnnouncedTime: demoTS(new Date()), OriginTime: demoTS(origin), Hypocenter: '茨城県南部', Latitude: 36.1, Longitude: 140.0, Depth: 50, Magunitude: 4.6, MaxIntensity: '4', isWarn: false, isFinal: false, isTraining: false, isAssumption: false, isCancel: false, WarnArea: [] }), 45000);
 }
 function demoTsunami() {
   const j = jst(new Date());
@@ -839,9 +984,10 @@ function demoQuiet() {
 }
 $('btnQuake').onclick = () => { audio(); replayQuake(); };
 $('btnEEW').onclick = () => { audio(); demoEEW(); };
+$('btnEEWfc').onclick = () => { audio(); demoEEWfc(); };
 $('btnTsu').onclick = () => { audio(); demoTsunami(); };
 $('btnQuiet').onclick = () => demoQuiet();
-$('btnClear').onclick = () => { clearTimeout(eewTimer); $('eew').hidden = true; $('mapCap').style.visibility = ''; tsunami = null; lastTsuMsg = null; renderTsuBar(); $('flash').hidden = true; $('mapCap').style.top = ''; events.clear(); seen.clear(); current = null; demoData().forEach(m => ingest(m, false)); current = sortedEvents()[0]; render(true); };
+$('btnClear').onclick = () => { clearTimeout(eewTimer); stopWaves(); activeEEW = null; $('eew').hidden = true; $('eew').classList.remove('cancel', 'fc'); $('mapCap').style.visibility = ''; tsunami = null; lastTsuMsg = null; renderTsuBar(); $('flash').hidden = true; $('mapCap').style.top = ''; events.clear(); seen.clear(); current = null; demoData().forEach(m => ingest(m, false)); current = sortedEvents()[0]; render(true); };
 document.querySelectorAll('#demoPanel [data-lang]').forEach(b => b.onclick = () => { LANG = b.dataset.lang; applyLang(); });
 
 // 音声経路のテスト用（?chimetest）
@@ -852,6 +998,7 @@ applyLang(); fit();
 if (FORCE_DEMO) startDemo();
 else {
   setConn('retry');
+  connectEEW();
   loadHistory().then(() => { connectWS(); setInterval(() => loadHistory().catch(() => {}), CONFIG.pollMs); })
     .catch(() => { if (OBS) { connectWS(); setInterval(() => loadHistory().catch(() => {}), CONFIG.pollMs); } else startDemo(); });
 }

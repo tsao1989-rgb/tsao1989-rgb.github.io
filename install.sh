@@ -55,6 +55,19 @@ chmod +x "$APP"/bin/*
 ln -sf "$APP/bin/quake-live" /usr/local/bin/quake-live
 rm -rf "$TMP"
 
+# 気象庁の走時表（P波・S波の円の計算に使う）を取得して変換。失敗しても近似式で動く
+TT_CACHE=/var/lib/quake-live/tt.json
+mkdir -p /var/lib/quake-live
+if [[ ! -s "$TT_CACHE" ]]; then
+  TTZ=$(mktemp --suffix=.zip)
+  if curl -fsSL -o "$TTZ" https://www.data.jma.go.jp/eqev/data/bulletin/catalog/appendix/trtime/tjma2001.zip \
+     && python3 "$APP/bin/make-tt.py" "$TTZ" "$TT_CACHE"; then :; else
+    echo "  ※ 走時表を取得できませんでした。P波・S波の円は近似計算で表示します。"; rm -f "$TT_CACHE"
+  fi
+  rm -f "$TTZ"
+fi
+[[ -s "$TT_CACHE" ]] && cp "$TT_CACHE" "$APP/web/tt.json"
+
 say "4/6 設定ファイルを準備しています"
 mkdir -p "$CONF"
 [[ -f "$CONF/main.env" ]] || cp "$APP/config/example.env" "$CONF/main.env"
