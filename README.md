@@ -18,6 +18,7 @@ curl -fsSL https://raw.githubusercontent.com/tsao1989-rgb/tsao1989-rgb.github.io
 | ストリームキーを設定・変更 | `sudo quake-live setkey` |
 | 再起動 | `sudo quake-live restart` |
 | 言語を変える | `sudo quake-live lang en`（ja / en / zh） |
+| 英語の併記を変える | `sudo quake-live sub zh`（en / zh / off） |
 | タイトルを変える | `sudo quake-live name "地震速報ライブ"` |
 | 画質を下げる | `sudo quake-live quality 720` |
 | ログを見る | `quake-live logs` |
@@ -37,7 +38,11 @@ curl -fsSL https://raw.githubusercontent.com/tsao1989-rgb/tsao1989-rgb.github.io
 - `systemd/` 自動起動・自動再起動の設定
 - `config/example.env` 設定の見本（実際の設定は `/etc/quake-live/main.env`）
 
-## 多言語で複数配信するとき
+## 1つの配信で多言語に対応する
+
+標準では、日本語の画面に英語を併記します（緊急地震速報・津波・新着地震のバナー、上部の状況表示、テロップ）。併記する言語は `SUB_LANG` で変えられます。
+
+## 言語ごとに別の配信を立てるとき
 
 ```bash
 sudo cp /etc/quake-live/main.env /etc/quake-live/en.env

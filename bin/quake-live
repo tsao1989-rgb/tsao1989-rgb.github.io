@@ -22,6 +22,14 @@ case "${1:-help}" in
     need_root "$@"
     [[ "${2:-}" =~ ^(ja|en|zh)$ ]] || { echo "使い方: sudo quake-live lang ja|en|zh"; exit 1; }
     set_var PAGE_LANG "$2"; systemctl restart "$UNIT"; echo "言語を $2 にしました。" ;;
+  sub)
+    need_root "$@"
+    case "${2:-}" in
+      en|zh|ja) set_var SUB_LANG "$2"; echo "警報とテロップに $2 を併記します。" ;;
+      off) set_var SUB_LANG ""; echo "併記をやめました。" ;;
+      *) echo "使い方: sudo quake-live sub en|zh|ja|off"; exit 1 ;;
+    esac
+    systemctl restart "$UNIT" ;;
   name)
     need_root "$@"
     [[ -n "${2:-}" ]] || { echo '使い方: sudo quake-live name "チャンネル名"'; exit 1; }
@@ -39,7 +47,7 @@ case "${1:-help}" in
   status)
     if systemctl is-active --quiet "$UNIT"; then echo "● 配信中（${UNIT}）"; else echo "○ 停止中（${UNIT}）"; fi
     systemctl is-active --quiet quake-web && echo "● 画面サーバー稼働中" || echo "○ 画面サーバー停止中"
-    grep -E '^(PAGE_LANG|RESOLUTION|CHANNEL_NAME)=' "$ENV" 2>/dev/null || true
+    grep -E '^(PAGE_LANG|SUB_LANG|RESOLUTION|CHANNEL_NAME)=' "$ENV" 2>/dev/null || true
     grep -q '^YT_KEY="..*"' "$ENV" 2>/dev/null && echo "ストリームキー: 設定済み" || echo "ストリームキー: 未設定（sudo quake-live setkey）"
     echo "CPU負荷: $(cut -d' ' -f1-3 /proc/loadavg)（コア数 $(nproc)）" ;;
   logs)
@@ -59,6 +67,7 @@ case "${1:-help}" in
   sudo quake-live setkey       YouTubeのストリームキーを設定
   sudo quake-live restart      配信を再起動（start / stop も可）
   sudo quake-live lang ja|en|zh   画面の言語を切り替え
+  sudo quake-live sub en|zh|off  警報とテロップに第2言語を併記（標準は英語）
   sudo quake-live name "名前"   画面左上のタイトルを変更
   sudo quake-live quality 1080|720  画質を変更（CPUが足りないときは720）
   quake-live logs              直近のログを表示

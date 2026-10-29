@@ -10,7 +10,7 @@
 <meta name="google" content="notranslate">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap">
 <style>
 /* Layout: fixed 1920x1080 broadcast stage scaled to fit. Status bar on top, map left, facts column right, ticker bottom. */
 :root {
@@ -36,6 +36,11 @@
   color-scheme: dark;
 }
 [hidden] { display: none !important; }
+/* 言語ごとに本文の書体を切り替える（英語は欧文書体、繁體中文は繁体字書体。日本語の地名は日本語書体で補う） */
+html:lang(en) { --font-body: "IBM Plex Sans", "BIZ UDPGothic", "Noto Sans CJK JP", sans-serif; }
+html:lang(zh-Hant) { --font-body: "Noto Sans TC", "BIZ UDPGothic", "Noto Sans CJK TC", sans-serif; }
+.sub { display: block; font-weight: 400; opacity: .92; }
+.sub:empty { display: none; }
 html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--fg); font-family: var(--font-body);
@@ -100,7 +105,9 @@ main { display: grid; grid-template-columns: 1240px 1fr; gap: 16px; padding: 16p
 #flash { position: absolute; left: 0; right: 0; top: 0; z-index: 3; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding: 12px 22px; background: #2a1c03; border-bottom: 3px solid var(--warn); }
 #flash.strong { background: #5a1405; border-color: #ff6a00; }
 #flash .tag { font-size: 22px; font-weight: 700; padding: 6px 12px; border-radius: 4px; background: var(--warn); color: #1d1300; animation: blink 1.2s infinite; }
-#flash .txt { font-size: 30px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#flash .txt { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+#flashTxt { font-size: 30px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+#flashSub { font-size: 20px; white-space: nowrap; overflow: hidden; }
 #flash .sc { width: 76px; height: 54px; font-size: 38px; border: 2px solid #fff; }
 
 /* 震度チップ */
@@ -166,25 +173,30 @@ aside h2 span { font-weight: 400; font-size: 18px; }
 /* ===== 緊急地震速報 ===== */
 #eew { position: absolute; left: 16px; top: 100px; width: 1240px; z-index: 5; background: var(--alert); color: #fff; border-radius: 6px 6px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
 #eew .head { display: flex; justify-content: space-between; align-items: center; padding: 12px 22px; background: #c4001b; border-radius: 6px 6px 0 0; }
-#eew .head strong { font-size: 44px; letter-spacing: .04em; animation: blink 1s infinite; white-space: nowrap; }
+#eew .head .ttl { min-width: 0; flex: 1 1 auto; overflow: hidden; }
+#eew .head strong { display: block; font-size: 44px; letter-spacing: .04em; animation: blink 1s infinite; white-space: nowrap; overflow: hidden; }
+#eew .head .ttl .sub { font-size: 20px; white-space: nowrap; overflow: hidden; }
 #eew .head span { font-size: 22px; }
 #eew .body { display: grid; grid-template-columns: 1fr auto; gap: 18px; padding: 14px 22px 16px; align-items: center; }
-#eew .msg { font-size: 30px; font-weight: 700; line-height: 1.35; }
-#eew .areas { font-size: 22px; margin-top: 6px; }
+#eew .body > div:first-child { min-width: 0; overflow: hidden; }
+#eew .msg { font-size: 30px; font-weight: 700; line-height: 1.35; white-space: nowrap; overflow: hidden; }
+#eew .submsg { font-size: 22px; font-weight: 700; opacity: .9; white-space: nowrap; overflow: hidden; }
+#eew .submsg:empty { display: none; }
+#eew .areas { font-size: 22px; margin-top: 6px; white-space: nowrap; overflow: hidden; }
 #eew .pred { display: grid; justify-items: center; gap: 4px; font-size: 18px; }
 #eew .pred .sc { width: 120px; height: 92px; font-size: 62px; border: 3px solid #fff; }
 #eew.fc { background: #ffb020; color: #1d1300; }
 #eew.fc .head { background: #e09600; }
 #eew.fc .head strong { animation: none; }
 #eew.fc .pred .sc { border-color: #1d1300; }
-#eew .meta { display: flex; gap: 18px; align-items: baseline; font-size: 22px; white-space: nowrap; }
+#eew .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 22px; white-space: nowrap; flex: none; }
 #eew .head { gap: 24px; }
 #eew .meta b { font-family: var(--font-num); font-size: 26px; }
 #eew.cancel { background: #3a4458; }
 #eew.cancel .head { background: #2a3244; }
 #eew.cancel .head strong { animation: none; }
 
-#tsuBar { position: absolute; left: 16px; bottom: 84px; width: 1240px; z-index: 4; padding: 14px 22px; border-radius: 6px; font-size: 26px; font-weight: 700; color: #fff; background: #5e0b67; border: 2px solid #ff8bf5; box-sizing: border-box; }
+#tsuBar { position: absolute; left: 16px; bottom: 84px; width: 1240px; z-index: 4; padding: 14px 22px; border-radius: 6px; font-size: 26px; font-weight: 700; white-space: nowrap; overflow: hidden; color: #fff; background: #5e0b67; border: 2px solid #ff8bf5; box-sizing: border-box; }
 #tsuBar.watch { background: #5e4f00; border-color: var(--s45); }
 
 /* P波・S波 */
@@ -218,7 +230,7 @@ aside h2 span { font-weight: 400; font-size: 18px; }
     <main>
       <section class="map-wrap">
         <svg id="map" viewBox="0 0 1240 900" aria-label="map"></svg>
-        <div id="flash" hidden><span class="tag" id="flashTag"></span><span class="txt" id="flashTxt"></span><span class="sc sc-0" id="flashSc">-</span></div>
+        <div id="flash" hidden><span class="tag" id="flashTag"></span><span class="txt"><span id="flashTxt"></span><small id="flashSub" class="sub"></small></span><span class="sc sc-0" id="flashSc">-</span></div>
         <div class="overlay map-cap" id="mapCap"><span id="mapTitle"></span><small id="mapSub"></small></div>
         <div class="overlay legend" id="legend"></div>
         <div class="overlay source" id="source" data-c="retry"><div class="row"><i></i><span id="connText"></span></div><div id="srcText"></div></div>
@@ -253,9 +265,9 @@ aside h2 span { font-weight: 400; font-size: 18px; }
     <footer class="ticker" id="ticker"><div class="tk-label" id="tkLabel"></div><div class="tk-track"><div id="tkText"></div></div></footer>
 
     <div id="eew" hidden>
-      <div class="head"><strong id="eewTitle"></strong><span class="meta"><span id="eewMeta"></span><span id="eewElapsed"></span></span></div>
+      <div class="head"><div class="ttl"><strong id="eewTitle"></strong><small id="eewSubTitle" class="sub"></small></div><span class="meta"><span id="eewMeta"></span><span id="eewElapsed"></span></span></div>
       <div class="body">
-        <div><div class="msg" id="eewMsg"></div><div class="areas" id="eewAreas"></div></div>
+        <div><div class="msg" id="eewMsg"></div><div class="submsg" id="eewSubMsg"></div><div class="areas" id="eewAreas"></div></div>
         <div class="pred"><span id="eewPredLbl"></span><div class="sc sc-0" id="eewScale">-</div></div>
       </div>
     </div>
@@ -275,6 +287,8 @@ aside h2 span { font-weight: 400; font-size: 18px; }
   <button type="button" data-lang="ja" aria-pressed="true">日本語</button>
   <button type="button" data-lang="en" aria-pressed="false">English</button>
   <button type="button" data-lang="zh" aria-pressed="false">繁體中文</button>
+  <span class="sep"></span>
+  <button type="button" id="btnSub" aria-pressed="false">英語字幕 ON/OFF</button>
 </div>
 
 <script src="d3.min.js"></script>
@@ -306,6 +320,8 @@ if (params.has('mute')) CONFIG.sound = false;
 const SHOW_WAVES = params.get('waves') !== '0';
 const SHOW_FC = params.get('eewfc') !== '0';
 const USE_WOLFX = params.get('eewsrc') !== 'p2p';
+// ?sub=en などで、警報・テロップに第2言語を併記する（1つの配信で多言語の視聴者に届ける）
+let SUB = ['ja', 'en', 'zh'].includes(params.get('sub')) ? params.get('sub') : null;
 let LANG = ['ja', 'en', 'zh'].includes(params.get('lang')) ? params.get('lang') : 'ja';
 
 // ===================== 多言語 =====================
@@ -323,8 +339,10 @@ function placeEN(name) {
   if (PART_EN[rest]) return `${PART_EN[rest]} ${P}`;
   if (rest === '沖') return `Off ${P}`;
   const off = rest.match(/^(北東|北西|南東|南西|北|南|東|西)(方)?沖$/); if (off) return `Off ${DIR_EN[off[1]]} ${P}`;
-  return `${P} (${rest})`;
+  return P;   // 英語名のない細かい地域名は県名だけにする（日本語を混ぜない）
 }
+const AREA_EN = { 伊豆諸島: 'Izu Islands', 小笠原諸島: 'Ogasawara Islands', 東京湾内湾: 'Tokyo Bay', 奄美群島・トカラ列島: 'Amami & Tokara Islands', 沖縄本島地方: 'Okinawa Island', 宮古島・八重山地方: 'Miyako & Yaeyama', 大東島地方: 'Daito Islands' };
+const areaEN = n => AREA_EN[n] || PLACES_EN[n] || (prefSplit(n) && PREFS[prefSplit(n)[0]]) || n;
 const prefEN = p => PREFS[String(p).replace(/(都|府|県)$/, '')] || p;
 const T = {
   ja: {
@@ -344,7 +362,7 @@ const T = {
     tsuGrade: { MajorWarning: '大津波警報', Warning: '津波警報', Watch: '津波注意報', Unknown: '津波予報' },
     tsuTicker: p => `【津波】${p}　海岸や川の河口付近から離れてください。`, tsuMore: '　ほか',
     eewTitle: '緊急地震速報（警報）', eewFcTitle: '緊急地震速報（予報）', eewCancel: '緊急地震速報 取り消し', eewCancelMsg: '先ほどの緊急地震速報は取り消されました。',
-    eewMsg: n => `${n}で地震　強い揺れに警戒してください`, eewFcMsg: n => `${n}で地震　揺れに注意してください`, final: '最終報', elapsed: s => `発生から <b>${s}</b>秒`,
+    eewMsg: n => `${n}で地震　強い揺れに警戒してください`, eewFcMsg: n => `${n}で地震　揺れに注意してください`, final: '（最終報）', elapsed: s => `発生から <b>${s}</b>秒`,
     waveP: 'P波（初期微動）', waveS: 'S波（主要動）', waveNote: '気象庁の震源・発生時刻から計算した推定', stEEWfc: '緊急地震速報（予報）発表中', depthKm: d => `深さ${d}km`, eewAreas: '対象地域：', eewPred: '予想最大震度', serial: n => `第${n}報`,
     flashTag: '地震情報', flash: (epi, sc) => `${epi}で 最大震度`,
     latest: (t, epi, sc, mag, tsu) => `【最新】${t}ごろ ${epi ? epi + 'で' : ''}最大震度${sc}の地震がありました。${mag ? '地震の規模はM' + mag + '。' : ''}${tsu}。`,
@@ -368,7 +386,7 @@ const T = {
     tsuGrade: { MajorWarning: 'Major Tsunami Warning', Warning: 'Tsunami Warning', Watch: 'Tsunami Advisory', Unknown: 'Tsunami Forecast' },
     tsuTicker: p => `[TSUNAMI] ${p} — Move away from coasts and river mouths.`, tsuMore: ' and more',
     eewTitle: 'Earthquake Early Warning', eewFcTitle: 'Early Warning (Forecast)', eewCancel: 'Early Warning Cancelled', eewCancelMsg: 'The previous Earthquake Early Warning has been cancelled.',
-    eewMsg: n => `Earthquake: ${n} — Strong shaking expected`, eewFcMsg: n => `Earthquake: ${n} — Shaking possible`, final: 'Final', elapsed: s => `<b>${s}</b>s since origin`,
+    eewMsg: n => `Earthquake: ${n} — Strong shaking expected`, eewFcMsg: n => `Earthquake: ${n} — Shaking possible`, final: ' (Final)', elapsed: s => `<b>${s}</b>s since origin`,
     waveP: 'P-wave', waveS: 'S-wave (main shaking)', waveNote: 'Estimated from JMA hypocenter and origin time', stEEWfc: 'Early Warning (Forecast) issued', depthKm: d => `Depth ${d} km`, eewAreas: 'Areas: ', eewPred: 'Max expected', serial: n => `Report #${n}`,
     flashTag: 'EARTHQUAKE', flash: epi => `${epi} · Max Shindo`,
     latest: (t, epi, sc, mag, tsu) => `[Latest] ${t} JST — Max Shindo ${sc} earthquake${epi ? ' in ' + epi : ''}.${mag ? ' Magnitude ' + mag + '.' : ''} ${tsu}.`,
@@ -392,7 +410,7 @@ const T = {
     tsuGrade: { MajorWarning: '大海嘯警報', Warning: '海嘯警報', Watch: '海嘯注意報', Unknown: '海嘯預報' },
     tsuTicker: p => `【海嘯】${p}　請遠離海岸及河口。`, tsuMore: '　等',
     eewTitle: '緊急地震速報（警報）', eewFcTitle: '緊急地震速報（預報）', eewCancel: '緊急地震速報 已取消', eewCancelMsg: '先前的緊急地震速報已取消。',
-    eewMsg: n => `${n}發生地震　請警戒強烈搖晃`, eewFcMsg: n => `${n}發生地震　請注意搖晃`, final: '最終報', elapsed: s => `發生後 <b>${s}</b>秒`,
+    eewMsg: n => `${n}發生地震　請警戒強烈搖晃`, eewFcMsg: n => `${n}發生地震　請注意搖晃`, final: '（最終報）', elapsed: s => `發生後 <b>${s}</b>秒`,
     waveP: 'P波（初期微動）', waveS: 'S波（主要震動）', waveNote: '依氣象廳震源及發生時間推算', stEEWfc: '緊急地震速報（預報）發布中', depthKm: d => `深度${d}km`, eewAreas: '對象地區：', eewPred: '預估最大震度', serial: n => `第${n}報`,
     flashTag: '地震資訊', flash: epi => `${epi}　最大震度`,
     latest: (t, epi, sc, mag, tsu) => `【最新】${t}左右 ${epi ? epi + '發生' : '發生'}最大震度${sc}的地震。${mag ? '規模M' + mag + '。' : ''}${tsu}。`,
@@ -433,6 +451,12 @@ const normPref = s => String(s || '').replace(/(都|道|府|県)$/, '');
 const hasHypo = h => h && h.name && h.latitude > -90 && h.longitude > -180;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
+function withLang(L, fn) { const prev = LANG; LANG = L; try { return fn(); } finally { LANG = prev; } }
+// 枠からはみ出す文字は、はみ出さなくなるまで小さくする
+function fit(el, max, min, box) {
+  if (!el) return; box = box || el; let size = max; el.style.fontSize = size + 'px';
+  while (box.scrollWidth > box.clientWidth + 1 && size > min) { size -= 1; el.style.fontSize = size + 'px'; }
+}
 
 // ===================== 時計・スケーリング =====================
 function tickClock() { const j = jst(new Date()); $('date').textContent = t().date(j); $('time').textContent = `${pad(j.h)}:${pad(j.mi)}:${pad(j.s)}`; $('tz').textContent = t().tz; }
@@ -599,7 +623,10 @@ function renderPoints(ev) {
   let html = '';
   SCALE_ORDER.forEach(c => {
     const at = pts.filter(p => p.scale === c); if (!at.length) return;
-    const places = [...d3.group(at, p => p.pref)].map(([pref, ps]) => `<b>${esc(prefName(pref))}</b>${ps.map(p => esc(p.addr)).join('　')}`).join('<br>');
+    const groups = [...d3.group(at, p => p.pref)];
+    const places = LANG === 'en'
+      ? groups.map(([pref, ps]) => `${esc(prefName(pref))} <b>(${ps.length})</b>`).join('　')
+      : groups.map(([pref, ps]) => `<b>${esc(prefName(pref))}</b>${ps.map(p => esc(p.addr)).join('　')}`).join('<br>');
     html += `<div class="prow"><span class="sc ${scaleClass(c)}">${scaleHTML(c)}</span><div class="places">${places}</div></div>`;
   });
   $('pointsList').innerHTML = html; $('pointsBox').scrollTop = 0;
@@ -611,17 +638,20 @@ function renderHistory(list) {
     return `<li class="${e === current ? 'cur' : ''}"><span class="sc ${scaleClass(e.earthquake.maxScale)}">${scaleHTML(e.earthquake.maxScale)}</span><span class="t num">${fmtDT(new Date(e._t))}</span><span class="p">${esc(hasHypo(h) ? place(h.name) : t().epiUnknown)}</span><span class="m num">${h.magnitude > 0 ? 'M' + h.magnitude.toFixed(1) : '-'}</span></li>`;
   }).join('');
 }
+function statusNow() {
+  if (eewActive() && !$('eew').classList.contains('cancel')) return (activeEEW && !activeEEW.warn) ? ['eewf', esc(t().stEEWfc)] : ['eew', esc(t().stEEW)];
+  if (tsunami) return ['tsu', esc(t().stTsu(t().tsuGrade[tsunami.grade]))];
+  if (!demoMode && connState === 'retry' && (!lastRx || Date.now() - lastRx > 5 * 60e3) && events.size === 0) return ['retry', esc(t().stRetry)];
+  if (mode === 'active' && current) return [current.earthquake.maxScale >= 45 ? 'strong' : 'recent', `${esc(t().stRecent(durShort(Date.now() - current._t)))} <span class="sc ${scaleClass(current.earthquake.maxScale)}">${scaleHTML(current.earthquake.maxScale)}</span>`];
+  return ['quiet', esc(t().stQuiet)];
+}
+let statusAlt = false;   // 第2言語があるときは5秒ごとに交互に表示
+setInterval(() => { if (SUB) { statusAlt = !statusAlt; renderStatus(); } }, 5000);
 function renderStatus() {
   const st = $('status'), tx = $('statusText');
-  let s, html;
-  if (eewActive() && !$('eew').classList.contains('cancel')) { if (activeEEW && !activeEEW.warn) { s = 'eewf'; html = esc(t().stEEWfc); } else { s = 'eew'; html = esc(t().stEEW); } }
-  else if (tsunami) { s = 'tsu'; html = esc(t().stTsu(t().tsuGrade[tsunami.grade])); }
-  else if (!demoMode && connState === 'retry' && (!lastRx || Date.now() - lastRx > 5 * 60e3) && events.size === 0) { s = 'retry'; html = esc(t().stRetry); }
-  else if (mode === 'active' && current) {
-    s = current.earthquake.maxScale >= 45 ? 'strong' : 'recent';
-    html = `${esc(t().stRecent(durShort(Date.now() - current._t)))} <span class="sc ${scaleClass(current.earthquake.maxScale)}">${scaleHTML(current.earthquake.maxScale)}</span>`;
-  } else { s = 'quiet'; html = esc(t().stQuiet); }
-  st.dataset.s = s; if (tx.__h !== html) { tx.__h = html; tx.innerHTML = html; }
+  const [s, html] = SUB && statusAlt ? withLang(SUB, statusNow) : statusNow();
+  st.dataset.s = s;
+  if (tx.__h !== html) { tx.__h = html; tx.innerHTML = html; fit(st, 26, 16); }
 }
 setInterval(() => {
   tickElapsed();
@@ -643,17 +673,25 @@ setInterval(() => {
 // ===================== テロップ =====================
 let tkX = 24, tkW = 0;
 function renderTicker() {
+  const build = () => {
+    const out = [];
+    if (tsunami) out.push(tsunamiTickerText());
+    if (current) {
+      const e = current.earthquake, h = e.hypocenter || {};
+      out.push(t().latest(fmtDT(new Date(current._t)), hasHypo(h) ? place(h.name) : '', scaleText(e.maxScale), h.magnitude > 0 ? h.magnitude.toFixed(1) : '', t().tsu[e.domesticTsunami] || t().tsu.Unknown));
+    }
+    return { head: out, notices: t().notices.slice() };
+  };
+  const a = build(), b = SUB ? withLang(SUB, build) : null;
   const msgs = [];
-  if (tsunami) msgs.push(tsunamiTickerText());
-  if (current) {
-    const e = current.earthquake, h = e.hypocenter || {};
-    msgs.push(t().latest(fmtDT(new Date(current._t)), hasHypo(h) ? place(h.name) : '', scaleText(e.maxScale), h.magnitude > 0 ? h.magnitude.toFixed(1) : '', t().tsu[e.domesticTsunami] || t().tsu.Unknown));
-  }
-  t().notices.forEach(n => msgs.push(n));
+  a.head.forEach((m, i) => { msgs.push(m); if (b && b.head[i]) msgs.push(b.head[i]); });
+  const n = Math.max(a.notices.length, b ? b.notices.length : 0);
+  for (let i = 0; i < n; i++) { if (a.notices[i]) msgs.push(a.notices[i]); if (b && b.notices[i]) msgs.push(b.notices[i]); }
   const el = $('tkText'); const html = msgs.map(m => `<span>${esc(m)}</span>`).join('');
   if (el.__html !== html) { el.__html = html; el.innerHTML = html; tkW = el.scrollWidth; }
   $('ticker').classList.toggle('alert', !!tsunami);
   $('tkLabel').textContent = tsunami ? t().tsuLabel : t().notice;
+  if (SUB) $('tkLabel').textContent += ' / ' + withLang(SUB, () => tsunami ? t().tsuLabel : t().notice);
 }
 (function tickerLoop() {
   const el = $('tkText'); let last = performance.now();
@@ -666,27 +704,31 @@ function showFlash(ev) {
   const e = ev.earthquake, h = e.hypocenter || {};
   $('flashTag').textContent = t().flashTag;
   $('flashTxt').textContent = t().flash(hasHypo(h) ? place(h.name) : t().epiUnknown);
+  $('flashSub').textContent = SUB ? withLang(SUB, () => t().flash(hasHypo(h) ? place(h.name) : t().epiUnknown) + ' ' + scaleText(e.maxScale)) : '';
   const sc = $('flashSc'); sc.className = 'sc ' + scaleClass(e.maxScale); sc.innerHTML = scaleHTML(e.maxScale);
   $('flash').classList.toggle('strong', e.maxScale >= 45);
-  $('flash').hidden = false; $('mapCap').style.top = '96px';
+  $('flash').hidden = false; $('mapCap').style.top = SUB ? '124px' : '96px';
+  fit($('flashTxt'), 30, 20); fit($('flashSub'), 20, 14);
   $('latestBox').classList.remove('fresh'); void $('latestBox').offsetWidth; $('latestBox').classList.add('fresh');
   clearTimeout(flashTimer);
   flashTimer = setTimeout(() => { $('flash').hidden = true; $('mapCap').style.top = ''; }, CONFIG.flashMs);
 }
 
 // ===================== 津波 =====================
+function tsuNames(list) { return LANG === 'en' ? [...new Set(list.map(areaEN))] : list; }
 function tsunamiTickerText() {
   const m = lastTsuMsg; if (!m) return '';
-  const names = g => m.areas.filter(a => a.grade === g).map(a => a.name);
+  const names = g => tsuNames(m.areas.filter(a => a.grade === g).map(a => a.name));
   return t().tsuTicker(['MajorWarning', 'Warning', 'Watch'].filter(g => names(g).length).map(g => `${t().tsuGrade[g]}：${names(g).join('、')}`).join(' ／ '));
 }
 function renderTsuBar() {
   const bar = $('tsuBar');
   if (!tsunami) { bar.hidden = true; return; }
-  const names = lastTsuMsg.areas.filter(a => a.grade === tsunami.grade).map(a => a.name);
+  const names = tsuNames(lastTsuMsg.areas.filter(a => a.grade === tsunami.grade).map(a => a.name));
+  const sep = LANG === 'en' ? ', ' : '、';
   bar.className = tsunami.grade === 'Watch' ? 'watch' : '';
-  bar.textContent = `${t().tsuGrade[tsunami.grade]}　${names.slice(0, 8).join('、')}${names.length > 8 ? t().tsuMore : ''}`;
-  bar.hidden = false;
+  bar.textContent = `${t().tsuGrade[tsunami.grade]}${SUB ? ' / ' + withLang(SUB, () => t().tsuGrade[tsunami.grade]) : ''}　${names.slice(0, 8).join(sep)}${names.length > 8 ? t().tsuMore : ''}`;
+  bar.hidden = false; fit(bar, 26, 16);
 }
 function handleTsunami(m, live) {
   const issued = parseJST(m.issue && m.issue.time);
@@ -756,15 +798,18 @@ function paintEEW() {
   const h = ev.hypo || {};
   $('eewTitle').textContent = ev.warn ? t().eewTitle : t().eewFcTitle;
   const bits = [];
-  if (ev.serial) bits.push(t().serial(ev.serial) + (ev.final ? `（${t().final}）` : ''));
+  if (ev.serial) bits.push(t().serial(ev.serial) + (ev.final ? t().final : ''));
   if (h.mag > 0) bits.push(`M${(+h.mag).toFixed(1)}`);
   if (h.depth >= 0 && !ev.assumption) bits.push(t().depthKm(h.depth));
   $('eewMeta').textContent = bits.join('　');
   $('eewMsg').textContent = (ev.warn ? t().eewMsg : t().eewFcMsg)(h.name ? place(h.name) : t().epiUnknown);
+  $('eewSubTitle').textContent = SUB ? withLang(SUB, () => ev.warn ? t().eewTitle : t().eewFcTitle) : '';
+  $('eewSubMsg').textContent = SUB ? withLang(SUB, () => (ev.warn ? t().eewMsg : t().eewFcMsg)(h.name ? place(h.name) : t().epiUnknown)) : '';
   const prefNames = [...new Set(ev.areas.map(a => a.pref).filter(Boolean))];
   $('eewAreas').textContent = prefNames.length ? t().eewAreas + prefNames.map(prefName).join(LANG === 'en' ? ', ' : '　') : '';
   $('eewPredLbl').textContent = t().eewPred;
   const sc = $('eewScale'); sc.className = 'sc ' + scaleClass(ev.maxScale); sc.innerHTML = scaleHTML(ev.maxScale);
+  fit($('eewTitle'), 44, 28); fit($('eewMsg'), 30, 20); fit($('eewSubMsg'), 22, 16); fit($('eewAreas'), 22, 16);
   $('wlP').textContent = t().waveP; $('wlS').textContent = t().waveS; $('wlNote').textContent = t().waveNote;
   tickEEWElapsed();
 }
@@ -908,6 +953,8 @@ function applyLang() {
   $('srcText').textContent = t().source; $('demoBadge').textContent = t().demo;
   $('legend').innerHTML = `<span>${esc(t().legend)}</span>` + [10, 20, 30, 40, 45, 50, 55, 60, 70].map(c => `<b class="sc ${scaleClass(c)}">${scaleHTML(c)}</b>`).join('');
   document.querySelectorAll('#demoPanel [data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
+  $('btnSub').setAttribute('aria-pressed', String(!!SUB)); $('btnSub').textContent = LANG === 'en' ? '日本語の併記 ON/OFF' : '英語の併記 ON/OFF';
+  $('tkText').__html = null;
   setConn(connState); tickClock();
   if (eewActive()) { if (!$('eew').classList.contains('cancel')) paintEEW(); renderLatest(current); renderPoints(current); renderHistory(sortedEvents()); renderTicker(); renderStatus(); }
   else render(false);
@@ -988,7 +1035,8 @@ $('btnEEWfc').onclick = () => { audio(); demoEEWfc(); };
 $('btnTsu').onclick = () => { audio(); demoTsunami(); };
 $('btnQuiet').onclick = () => demoQuiet();
 $('btnClear').onclick = () => { clearTimeout(eewTimer); stopWaves(); activeEEW = null; $('eew').hidden = true; $('eew').classList.remove('cancel', 'fc'); $('mapCap').style.visibility = ''; tsunami = null; lastTsuMsg = null; renderTsuBar(); $('flash').hidden = true; $('mapCap').style.top = ''; events.clear(); seen.clear(); current = null; demoData().forEach(m => ingest(m, false)); current = sortedEvents()[0]; render(true); };
-document.querySelectorAll('#demoPanel [data-lang]').forEach(b => b.onclick = () => { LANG = b.dataset.lang; applyLang(); });
+document.querySelectorAll('#demoPanel [data-lang]').forEach(b => b.onclick = () => { LANG = b.dataset.lang; if (SUB === LANG) SUB = null; applyLang(); });
+$('btnSub').onclick = () => { SUB = SUB ? null : (LANG === 'en' ? 'ja' : 'en'); applyLang(); };
 
 // 音声経路のテスト用（?chimetest）
 if (params.has('chimetest')) setInterval(() => chime('quake'), 5000);
